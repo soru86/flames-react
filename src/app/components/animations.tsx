@@ -29,25 +29,26 @@ function Animations() {
 
   useEffect(() => {
     if (state?.animations?.error) {
-      toast(state?.animations?.error, {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: true,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-        type: "error",
-        transition: Bounce,
-      });
+      toast(state?.animations?.error);
     }
   }, [state]);
 
   return (
     <div>
       <AnimationsContainer animations={animations} />
-      <ToastContainer />
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        transition={Bounce}
+      />
     </div>
   );
 }

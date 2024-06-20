@@ -7,6 +7,7 @@ import { ApolloProvider } from "@apollo/client";
 import { Provider } from "react-redux";
 import { store } from "./app/common/redux/store/store";
 import "react-toastify/dist/ReactToastify.css";
+import * as swRegistration from "./app/utils/service-worker-utils";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
@@ -20,3 +21,5 @@ root.render(
     </ApolloProvider>
   </React.StrictMode>
 );
+
+swRegistration.register();
