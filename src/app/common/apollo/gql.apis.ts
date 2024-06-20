@@ -5,6 +5,7 @@ import {
   getAllAnimationsQuery,
   getAnimationByIdQuery,
   getAnimationsByTitleQuery,
+  syncAnimationsMutation,
 } from "../../utils/graphql-queries";
 
 const queryAllAnimations = async () => {
@@ -44,9 +45,20 @@ const createAnimation = async (animation: InputAnimation) => {
   return dbAnimation;
 };
 
+const syncAnimations = async (animations: Array<InputAnimation>) => {
+  const dbAnimation = await apolloClient.mutate({
+    mutation: syncAnimationsMutation,
+    variables: {
+      animations: animations,
+    },
+  });
+  return dbAnimation;
+};
+
 export {
   queryAllAnimations,
   queryAnimationById,
   createAnimation,
   queryAnimationsByTitle,
+  syncAnimations,
 };

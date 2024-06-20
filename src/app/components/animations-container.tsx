@@ -7,17 +7,14 @@ import AnimationDetailedInfoModal from "./animation-detailed-info-modal";
 import AnimationItem from "./animation-item";
 import UploadAnimationModal from "./upload-animation-modal";
 import { useDispatch } from "react-redux";
-import {
-  AppDispatch,
-  fetchAnimationById,
-} from "../common/redux/reducers/animations-slice";
+import { fetchAnimationById } from "../common/redux/reducers/animations-slice";
 import { useSelector } from "react-redux";
 
 const selector = (state: any) => {
   return state.animations.currentAnimation;
 };
 
-function AnimationsContainer({ animations }: { animations: Animation[] }) {
+const AnimationsContainer = ({ animations }: { animations: Animation[] }) => {
   const dispatch = useDispatch();
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showViewModal, setshowViewModal] = useState(false);
@@ -57,6 +54,6 @@ function AnimationsContainer({ animations }: { animations: Animation[] }) {
       />
     </div>
   );
-}
+};
 
 export default AnimationsContainer;

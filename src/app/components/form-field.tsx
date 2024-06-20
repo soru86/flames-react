@@ -1,4 +1,4 @@
-function FormField({
+const FormField = ({
   fieldLabel,
   fieldName,
   multiSpan = false,
@@ -8,7 +8,7 @@ function FormField({
   fieldName: string;
   multiSpan: boolean;
   onChangeHandler: React.ChangeEventHandler<HTMLInputElement>;
-}) {
+}) => {
   const styleClasses = multiSpan
     ? "h-8 rounded p-1 col-span-3"
     : "h-8 rounded p-1";
@@ -27,6 +27,6 @@ function FormField({
       />
     </>
   );
-}
+};
 
 export default FormField;

@@ -1,14 +1,14 @@
 import Animation from "../shapes/animation";
 
-function jp(jsonString: string) {
+const jp = (jsonString: string) => {
   return JSON.parse(jsonString);
-}
+};
 
-function js(jsonObj: any) {
+const js = (jsonObj: any) => {
   return JSON.stringify(jsonObj);
-}
+};
 
-function emptyAnimation(): Animation {
+const emptyAnimation = (): Animation => {
   return {
     id: "",
     title: "",
@@ -21,6 +21,12 @@ function emptyAnimation(): Animation {
     totalFrames: 0,
     fileSize: "",
   };
-}
+};
 
-export { jp, js, emptyAnimation };
+const isConnectionAlive = async () => {
+  const SERVER_URL = "https://www.google.com";
+  const response = await fetch(SERVER_URL, { method: "HEAD", mode: "no-cors" });
+  return response?.ok || response?.type === "opaque";
+};
+
+export { jp, js, emptyAnimation, isConnectionAlive };

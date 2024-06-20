@@ -4,7 +4,7 @@ import { jp } from "../utils/utils";
 import { LuDownload } from "react-icons/lu";
 import { IoMdInformationCircleOutline } from "react-icons/io";
 
-function handleDownload(jsonData: string) {
+const handleDownload = (jsonData: string) => {
   const fileName = `animation-${Date.now()}.json`;
   const contentType = "application/json;charset=utf-8;";
   const a = document.createElement("a");
@@ -14,18 +14,18 @@ function handleDownload(jsonData: string) {
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-}
+};
 
-function handleClickViewInfo(
+const handleClickViewInfo = (
   animationId: string,
   setCurrentAnimationId: CallableFunction,
   setshowViewModal: CallableFunction
-) {
+) => {
   setshowViewModal(true);
   setCurrentAnimationId(animationId);
-}
+};
 
-function AnimationItem({
+const AnimationItem = ({
   animation,
   setCurrentAnimationId,
   setshowViewModal,
@@ -33,7 +33,7 @@ function AnimationItem({
   animation: Animation;
   setCurrentAnimationId: CallableFunction;
   setshowViewModal: CallableFunction;
-}) {
+}) => {
   return (
     <li
       key={animation.id}
@@ -77,6 +77,6 @@ function AnimationItem({
       </div>
     </li>
   );
-}
+};
 
 export default AnimationItem;

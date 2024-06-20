@@ -1,9 +1,9 @@
 import ResponseObject from "../shapes/response-object";
 
-export async function checkConnectivity(
+export const checkConnectivity = async (
   online: () => void,
   offline: () => void
-): Promise<ResponseObject> {
+): Promise<ResponseObject> => {
   try {
     if (navigator.onLine) {
       online();
@@ -22,53 +22,12 @@ export async function checkConnectivity(
     console.debug(err);
     throw new Error("Unable to check network connectivity!");
   }
-}
+};
 
-export async function EnableFullScreenMode(): Promise<ResponseObject> {
-  try {
-    if (document.fullscreenEnabled) {
-      document.documentElement.requestFullscreen();
-      return {
-        status: "success",
-        message: "Fullscreen mode activated",
-      };
-    } else {
-      return {
-        status: "bad",
-        message: "Fullscreen mode not supported",
-      };
-    }
-  } catch (err) {
-    console.debug(err);
-    throw new Error("Error activating fullscreen mode!");
-  }
-}
-
-// Exit fullscreen mode
-export async function ExitFullScreenMode(): Promise<ResponseObject> {
-  try {
-    if (document.exitFullscreen) {
-      document.exitFullscreen();
-      return {
-        status: "success",
-        message: "Fullscreen mode deactivated",
-      };
-    } else {
-      return {
-        status: "bad",
-        message: "Fullscreen mode not supported",
-      };
-    }
-  } catch (err) {
-    console.debug(err);
-    throw new Error("Error deactivating fullscreen mode!");
-  }
-}
-
-export async function SendNotification(
+export const SendNotification = async (
   title: string,
   options: NotificationOptions
-) {
+) => {
   try {
     if ("Notification" in window) {
       const permissions = await (
@@ -88,19 +47,19 @@ export async function SendNotification(
         await navigator.serviceWorker.ready.then((registration) => {
           registration.showNotification(title, options);
           return {
-            status: "success",
+            // status: "success",
             message: "Sent Notification to user successfully",
           };
         });
       } else {
         return {
-          status: "bad",
+          // status: "bad",
           message: "Denied access to sending notifications!",
         };
       }
     } else {
       return {
-        status: "bad",
+        // status: "bad",
         message: "Notification API not supported",
       };
     }
@@ -108,4 +67,4 @@ export async function SendNotification(
     console.debug(error);
     throw new Error("Error sending notification!");
   }
-}
+};

@@ -7,6 +7,11 @@ import InputAnimation from "../shapes/input-animation";
 import { useDispatch } from "react-redux";
 import { addAnimation } from "../common/redux/reducers/animations-slice";
 import { Dispatch } from "@reduxjs/toolkit";
+import { useSelector } from "react-redux";
+import {
+  addOfflineAnimation,
+  findOfflineAnimationByTitle,
+} from "../common/redux/reducers/resilient-sync-slice";
 
 const getFileSizeInKB = (fileSize: number) => {
   return `${fileSize ? (fileSize * 0.001).toFixed(1) : 0} KB`;
@@ -67,7 +72,8 @@ const handleFormSubmit = async (
   event: React.FormEvent<HTMLFormElement>,
   formData: InputAnimation,
   setShowUploadModal: CallableFunction,
-  dispatch: Dispatch
+  dispatch: Dispatch,
+  networkStatus: string
 ) => {
   event.preventDefault();
   const {
@@ -98,15 +104,22 @@ const handleFormSubmit = async (
     fileSize,
   };
 
-  const dbAnimation = await dispatch(addAnimation(fields));
-
-  if (!dbAnimation) {
+  let savedAnimation;
+  if (networkStatus === "online") {
+    savedAnimation = await dispatch(addAnimation(fields));
+  } else {
+    dispatch(addOfflineAnimation(fields));
+    savedAnimation = dispatch(findOfflineAnimationByTitle(fields.title));
+  }
+  if (!savedAnimation) {
     setShowUploadModal(true);
     throw new Error("Error creating new animation in DB store.");
   } else {
     setShowUploadModal(false);
   }
 };
+
+const networkStatusSelector = (state) => state?.networkStatus;
 
 const UploadAnimationModal = ({
   showUploadModal,
@@ -116,6 +129,7 @@ const UploadAnimationModal = ({
   setShowUploadModal: CallableFunction;
 }) => {
   const dispatch = useDispatch();
+  const networkStatus = useSelector(networkStatusSelector);
   const [file, setFile] = useState<string>("");
   const [fileSize, setFileSize] = useState<number>(0);
   const [formData, setFormData] = useState({} as InputAnimation);
@@ -144,7 +158,13 @@ const UploadAnimationModal = ({
 
             <form
               onSubmit={(e) =>
-                handleFormSubmit(e, formData, setShowUploadModal, dispatch)
+                handleFormSubmit(
+                  e,
+                  formData,
+                  setShowUploadModal,
+                  dispatch,
+                  networkStatus
+                )
               }
             >
               <div className="p-6 pt-0 grid grid-row6 gap-6">

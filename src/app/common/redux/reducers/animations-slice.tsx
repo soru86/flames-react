@@ -17,6 +17,7 @@ interface AnimationsState {
   error: any;
   animations: Array<Animation>;
   currentAnimation: Animation;
+  networkStatus: string;
 }
 
 const initialState: AnimationsState = {
@@ -24,6 +25,7 @@ const initialState: AnimationsState = {
   error: null,
   animations: [],
   currentAnimation: {},
+  networkStatus: "online",
 };
 
 export const fetchAnimations = createAsyncThunk(
@@ -64,6 +66,9 @@ const animationsSlice = createSlice({
   reducers: {
     getAllAnimations: (state, action) => state?.animations,
     getCurrentAnimation: (state, action) => state?.currentAnimation,
+    setNetworkStatus: (state, action) => {
+      state.networkStatus = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -115,6 +120,6 @@ const animationsSlice = createSlice({
 });
 
 export type AppDispatch = typeof store.dispatch;
-export const { getAllAnimations, getCurrentAnimation } =
+export const { getAllAnimations, getCurrentAnimation, setNetworkStatus } =
   animationsSlice.actions;
 export default animationsSlice.reducer;

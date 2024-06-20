@@ -60,9 +60,29 @@ const addNewAnimationMutation = gql`
   }
 `;
 
+const syncAnimationsMutation = gql`
+  mutation syncAnimations($animations: [InputAnimation]!) {
+    addAnimation(animations: $animations) {
+      id
+      title
+      definition
+      description
+      dimension
+      frameRate
+      duration
+      layers
+      totalFrames
+      fileSize
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
 export {
   getAllAnimationsQuery,
   getAnimationByIdQuery,
   getAnimationsByTitleQuery,
   addNewAnimationMutation,
+  syncAnimationsMutation,
 };

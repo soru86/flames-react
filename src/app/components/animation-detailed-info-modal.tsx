@@ -1,6 +1,6 @@
 import { IoClose } from "react-icons/io5";
 
-function AnimationDetailedInfoModal({
+const AnimationDetailedInfoModal = ({
   showViewModal,
   setshowViewModal,
   anim,
@@ -8,7 +8,7 @@ function AnimationDetailedInfoModal({
   showViewModal: boolean;
   setshowViewModal: CallableFunction;
   anim: any;
-}) {
+}) => {
   const styleClasses: string = showViewModal
     ? "fixed z-50 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4"
     : "fixed hidden z-50 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4";
@@ -101,6 +101,6 @@ function AnimationDetailedInfoModal({
       ) : null}
     </>
   );
-}
+};
 
 export default AnimationDetailedInfoModal;
