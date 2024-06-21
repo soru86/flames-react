@@ -4,7 +4,7 @@
 import Animation from "../../../shapes/animation";
 import InputAnimation from "../../../shapes/input-animation";
 import { syncAnimations } from "../../apollo/gql.apis";
-import { createAsyncThunk, createSlice, current } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 interface OfflineAnimationsState {
   offlineAnimations: Array<Animation>;
@@ -12,6 +12,7 @@ interface OfflineAnimationsState {
 }
 
 const initialState: OfflineAnimationsState = {
+  error: null,
   syncStatus: "pending",
   offlineAnimations: [],
 };
@@ -28,33 +29,31 @@ const offlineAnimationsSlice = createSlice({
   name: "offlineAnimations",
   initialState,
   reducers: {
-    addOfflineAnimation: (state, action) => ({
-      syncStatus: "pending",
-      offlineAnimations: [...state.offlineAnimations, action.payload],
-    }),
-    findOfflineAnimationByTitle: (state, action) =>
-      state?.offlineAnimations?.filter((oa) => oa.title === action.payload),
+    addOfflineAnimation: (state, action) => {
+      const existingOfflineAnimations = state["offlineAnimations"];
+      existingOfflineAnimations.push(action.payload);
+      state["offlineAnimations"] = existingOfflineAnimations;
+      state.syncStatus = "pending";
+    },
   },
   extraReducers: (builder) => {
     builder
       .addCase(syncOfflineAnimations.pending, (state) => {
-        state.status = "loading";
+        state.syncStatus = "in progress";
       })
       .addCase(syncOfflineAnimations.fulfilled, (state, action) => {
-        state.status = "succeeded";
         state.synStatus = "succeeded";
         if (state.syncStatus === "succeeded") {
-          state.offlineAnimations = [];
+          state["offlineAnimations"] = [];
         }
       })
       .addCase(syncOfflineAnimations.rejected, (state, action) => {
-        state.status = "failed";
+        state.synStatus = "failed";
         state.error = action.error.message;
       });
   },
 });
 
 export type AppDispatch = typeof store.dispatch;
-export const { addOfflineAnimation, findOfflineAnimationByTitle } =
-  offlineAnimationsSlice.actions;
+export const { addOfflineAnimation } = offlineAnimationsSlice.actions;
 export default offlineAnimationsSlice.reducer;

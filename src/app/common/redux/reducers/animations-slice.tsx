@@ -64,8 +64,8 @@ const animationsSlice = createSlice({
   name: "animations",
   initialState,
   reducers: {
-    getAllAnimations: (state, action) => state?.animations,
-    getCurrentAnimation: (state, action) => state?.currentAnimation,
+    getAllAnimations: (state) => state?.animations,
+    getCurrentAnimation: (state) => state?.currentAnimation,
     setNetworkStatus: (state, action) => {
       state.networkStatus = action.payload;
     },

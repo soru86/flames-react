@@ -62,7 +62,7 @@ const addNewAnimationMutation = gql`
 
 const syncAnimationsMutation = gql`
   mutation syncAnimations($animations: [InputAnimation]!) {
-    addAnimation(animations: $animations) {
+    syncAnimations(animations: $animations) {
       id
       title
       definition
