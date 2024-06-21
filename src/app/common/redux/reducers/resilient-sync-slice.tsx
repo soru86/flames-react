@@ -35,6 +35,9 @@ const offlineAnimationsSlice = createSlice({
       state["offlineAnimations"] = existingOfflineAnimations;
       state.syncStatus = "pending";
     },
+    setSyncStatus: (state, action) => {
+      state.syncStatus = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -55,5 +58,6 @@ const offlineAnimationsSlice = createSlice({
 });
 
 export type AppDispatch = typeof store.dispatch;
-export const { addOfflineAnimation } = offlineAnimationsSlice.actions;
+export const { addOfflineAnimation, setSyncStatus } =
+  offlineAnimationsSlice.actions;
 export default offlineAnimationsSlice.reducer;

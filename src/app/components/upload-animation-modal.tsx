@@ -10,18 +10,6 @@ import { Dispatch } from "@reduxjs/toolkit";
 import { useSelector } from "react-redux";
 import { addOfflineAnimation } from "../common/redux/reducers/resilient-sync-slice";
 
-const offlineAnimationSelector = (state, title) => {
-  let result;
-
-  if (title?.length) {
-    const filteredResult = state?.offlineAnimations?.filter(
-      (oa) => oa.title === title
-    );
-    result = filteredResult?.length ? filteredResult[0] : undefined;
-  }
-  return result;
-};
-
 const getFileSizeInKB = (fileSize: number) => {
   return `${fileSize ? (fileSize * 0.001).toFixed(1) : 0} KB`;
 };
@@ -82,8 +70,7 @@ const handleFormSubmit = async (
   formData: InputAnimation,
   setShowUploadModal: CallableFunction,
   dispatch: Dispatch,
-  networkStatus: string,
-  newOfflineAnimation: any
+  networkStatus: string
 ) => {
   event.preventDefault();
   const {
@@ -130,7 +117,7 @@ const handleFormSubmit = async (
   }
 };
 
-const networkStatusSelector = (state) => state?.networkStatus;
+const networkStatusSelector = (state) => state?.animations?.networkStatus;
 
 const UploadAnimationModal = ({
   showUploadModal,
@@ -144,9 +131,6 @@ const UploadAnimationModal = ({
   const [fileSize, setFileSize] = useState<number>(0);
   const [formData, setFormData] = useState({} as InputAnimation);
   const networkStatus = useSelector(networkStatusSelector);
-  const newOfflineAnimation = useSelector((formData) =>
-    offlineAnimationSelector(formData.title)
-  );
 
   const styleClasses: string = showUploadModal
     ? "fixed z-50 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4"
@@ -177,8 +161,7 @@ const UploadAnimationModal = ({
                   formData,
                   setShowUploadModal,
                   dispatch,
-                  networkStatus,
-                  newOfflineAnimation
+                  networkStatus
                 )
               }
             >

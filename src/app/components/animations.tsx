@@ -10,9 +10,12 @@ import {
 import { useSelector } from "react-redux";
 import { Bounce, ToastContainer, toast } from "react-toastify";
 import { isConnectionAlive } from "../utils/utils";
-import { syncOfflineAnimations } from "../common/redux/reducers/resilient-sync-slice";
+import {
+  setSyncStatus,
+  syncOfflineAnimations,
+} from "../common/redux/reducers/resilient-sync-slice";
 
-const selector = (state) => {
+const animationsSelector = (state) => {
   return state?.animations?.animations;
 };
 
@@ -21,7 +24,12 @@ const errorSelector = (state) => state?.animations?.error;
 const offlineAnimationsSelector = (state) =>
   state?.offlineAnimations?.offlineAnimations;
 
+const syncStatusSelector = (state) => state?.offlineAnimations?.syncStatus;
+
+const networkStatusSelector = (state) => state?.animations?.networkStatus;
+
 const handleConnection = async (
+  syncStatus: string,
   unsyncedAnimations: Array<Animation>,
   dispatch: CallableFunction
 ) => {
@@ -30,31 +38,22 @@ const handleConnection = async (
     if (online) {
       dispatch(setNetworkStatus("online"));
       toast("Back online!", { type: "success" });
-      toast("Starting data sync with server...", {
-        type: "info",
-      });
-      const response = await dispatch(
-        syncOfflineAnimations(unsyncedAnimations)
-      );
-
-      if (!response?.error) {
-        toast("Data sync completed!", {
-          type: "success",
-        });
-      }
     } else {
       toast("No connectivity!", { type: "error" });
     }
   } else {
     dispatch(setNetworkStatus("offline"));
+    dispatch(setSyncStatus("pending"));
     toast("You're offline!", { type: "error" });
   }
 };
 
 const Animations = () => {
-  const animations = useSelector(selector);
+  const animations = useSelector(animationsSelector);
   const error = useSelector(errorSelector);
   const unsyncedAnimations = useSelector(offlineAnimationsSelector);
+  const syncStatus = useSelector(syncStatusSelector);
+  const nwStatus = useSelector(networkStatusSelector);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -62,12 +61,46 @@ const Animations = () => {
       await dispatch(fetchAnimations());
     };
     fetchData();
-  }, []);
+  }, [dispatch]);
 
-  const eventCallback = useCallback(
-    () => handleConnection(unsyncedAnimations, dispatch),
-    [unsyncedAnimations, dispatch]
-  );
+  useEffect(() => {
+    const synchronizeData = async () => {
+      if (
+        nwStatus === "online" &&
+        syncStatus === "pending" &&
+        unsyncedAnimations?.length
+      ) {
+        toast("Starting data sync with server...", {
+          type: "info",
+        });
+
+        const response = await dispatch(
+          syncOfflineAnimations(unsyncedAnimations)
+        );
+
+        if (!response?.error) {
+          dispatch(setSyncStatus("completed"));
+          toast("Data sync completed!", {
+            type: "success",
+          });
+        }
+      }
+    };
+    synchronizeData();
+  }, [nwStatus, unsyncedAnimations, syncStatus, dispatch]);
+
+  useEffect(() => {
+    if (syncStatus === "completed" || !error) {
+      const fetchUpdatedData = async () => {
+        await dispatch(fetchAnimations());
+      };
+      fetchUpdatedData();
+    }
+  }, [syncStatus, error, dispatch]);
+
+  const eventCallback = useCallback(() => {
+    handleConnection(syncStatus, unsyncedAnimations, dispatch);
+  }, []);
 
   useEffect(() => {
     window.addEventListener("online", eventCallback);
