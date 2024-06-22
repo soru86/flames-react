@@ -1,14 +1,16 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
 import React, { ChangeEvent, useState } from "react";
 import { IoClose } from "react-icons/io5";
 import FormField from "./form-field";
 import InputAnimation from "../shapes/input-animation";
 import { useDispatch } from "react-redux";
 import { addAnimation } from "../common/redux/reducers/animations-slice";
-import { Dispatch } from "@reduxjs/toolkit";
+import { Action, ThunkDispatch } from "@reduxjs/toolkit";
 import { useSelector } from "react-redux";
 import { addOfflineAnimation } from "../common/redux/reducers/resilient-sync-slice";
+import { RootState } from "../types/types";
+import OfflineAnimationsState from "../shapes/offline-animations-state";
+import AnimationsState from "../shapes/animations-state";
+import { toast } from "react-toastify";
 
 const getFileSizeInKB = (fileSize: number) => {
   return `${fileSize ? (fileSize * 0.001).toFixed(1) : 0} KB`;
@@ -69,7 +71,11 @@ const handleFormSubmit = async (
   event: React.FormEvent<HTMLFormElement>,
   formData: InputAnimation,
   setShowUploadModal: CallableFunction,
-  dispatch: Dispatch,
+  dispatch: ThunkDispatch<
+    AnimationsState | OfflineAnimationsState,
+    any,
+    Action
+  >,
   networkStatus: string
 ) => {
   event.preventDefault();
@@ -86,7 +92,10 @@ const handleFormSubmit = async (
   } = formData;
 
   if (!definition) {
-    throw new Error("No JSON file selected. Please select file and try again.");
+    toast(
+      "No JSON file selected. Please select the animation file and try again.",
+      { type: "error" }
+    );
   }
 
   const fields: InputAnimation = {
@@ -117,7 +126,8 @@ const handleFormSubmit = async (
   }
 };
 
-const networkStatusSelector = (state) => state?.animations?.networkStatus;
+const networkStatusSelector = (state: RootState) =>
+  state?.animations?.networkStatus;
 
 const UploadAnimationModal = ({
   showUploadModal,
@@ -126,7 +136,10 @@ const UploadAnimationModal = ({
   showUploadModal: boolean;
   setShowUploadModal: CallableFunction;
 }) => {
-  const dispatch = useDispatch();
+  const dispatch =
+    useDispatch<
+      ThunkDispatch<AnimationsState | OfflineAnimationsState, any, Action>
+    >();
   const [file, setFile] = useState<string>("");
   const [fileSize, setFileSize] = useState<number>(0);
   const [formData, setFormData] = useState({} as InputAnimation);

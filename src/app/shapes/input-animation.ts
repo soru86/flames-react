@@ -1,3 +1,7 @@
+/**
+ * Shape of input animation, this to keep consistent with mutation input type.
+ */
+
 type InputAnimation = {
   title: string;
   definition: string;

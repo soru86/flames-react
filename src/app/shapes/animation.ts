@@ -1,3 +1,7 @@
+/**
+ * Shape for Animation model.
+ */
+
 export default interface Animation {
   id: string;
   title: string;

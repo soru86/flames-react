@@ -1,38 +1,26 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
-
-import Animation from "../../../shapes/animation";
 import InputAnimation from "../../../shapes/input-animation";
 import { syncAnimations } from "../../apollo/gql.apis";
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { Slice, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { offlineAnimationsInitialState } from "../initial-states/offline-animations-initial-state";
+import OfflineAnimationsState from "../../../shapes/offline-animations-state";
+import { AsyncThunkConfig } from "@reduxjs/toolkit/dist/createAsyncThunk";
 
-interface OfflineAnimationsState {
-  offlineAnimations: Array<Animation>;
-  syncStatus: "pending" | "completed";
-}
+const createAppAsyncThunk = createAsyncThunk.withTypes<AsyncThunkConfig>();
 
-const initialState: OfflineAnimationsState = {
-  error: null,
-  syncStatus: "pending",
-  offlineAnimations: [],
-};
-
-export const syncOfflineAnimations = createAsyncThunk(
+export const syncOfflineAnimations = createAppAsyncThunk(
   "graphql/animations/sync",
-  async (animations: Array<InputAnimation>, thunkAPI) => {
+  async (animations: Array<InputAnimation>) => {
     let response = await syncAnimations(animations);
     return response;
   }
 );
 
-const offlineAnimationsSlice = createSlice({
+const offlineAnimationsSlice: Slice = createSlice({
   name: "offlineAnimations",
-  initialState,
+  initialState: offlineAnimationsInitialState,
   reducers: {
     addOfflineAnimation: (state, action) => {
-      const existingOfflineAnimations = state["offlineAnimations"];
-      existingOfflineAnimations.push(action.payload);
-      state["offlineAnimations"] = existingOfflineAnimations;
+      state.offlineAnimations.unshift(action.payload);
       state.syncStatus = "pending";
     },
     setSyncStatus: (state, action) => {
@@ -41,23 +29,31 @@ const offlineAnimationsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(syncOfflineAnimations.pending, (state) => {
-        state.syncStatus = "in progress";
-      })
-      .addCase(syncOfflineAnimations.fulfilled, (state, action) => {
-        state.synStatus = "succeeded";
-        if (state.syncStatus === "succeeded") {
-          state["offlineAnimations"] = [];
+      .addCase(
+        syncOfflineAnimations.pending,
+        (state: OfflineAnimationsState) => {
+          state.syncStatus = "in-progress";
         }
-      })
-      .addCase(syncOfflineAnimations.rejected, (state, action) => {
-        state.synStatus = "failed";
-        state.error = action.error.message;
-      });
+      )
+      .addCase(
+        syncOfflineAnimations.fulfilled,
+        (state: OfflineAnimationsState, action) => {
+          state.syncStatus = "completed";
+          if (state.syncStatus === "completed") {
+            state["offlineAnimations"] = [];
+          }
+        }
+      )
+      .addCase(
+        syncOfflineAnimations.rejected,
+        (state: OfflineAnimationsState, action) => {
+          state.syncStatus = "failed";
+          state.error = action.error.message;
+        }
+      );
   },
 });
 
-export type AppDispatch = typeof store.dispatch;
 export const { addOfflineAnimation, setSyncStatus } =
   offlineAnimationsSlice.actions;
 export default offlineAnimationsSlice.reducer;

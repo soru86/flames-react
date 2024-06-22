@@ -1,5 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
 import { useEffect, useState } from "react";
 import Animation from "../shapes/animation";
 import ActionBar from "./action-bar";
@@ -9,17 +7,21 @@ import UploadAnimationModal from "./upload-animation-modal";
 import { useDispatch } from "react-redux";
 import { fetchAnimationById } from "../common/redux/reducers/animations-slice";
 import { useSelector } from "react-redux";
+import { RootState } from "../types/types";
+import { ThunkDispatch } from "redux-thunk";
+import AnimationsState from "../shapes/animations-state";
+import { Action } from "@reduxjs/toolkit";
 
-const selector = (state: any) => {
-  return state.animations.currentAnimation;
+const currentAnimationSelector = (state: RootState) => {
+  return state?.animations?.currentAnimation;
 };
 
 const AnimationsContainer = ({ animations }: { animations: Animation[] }) => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<ThunkDispatch<AnimationsState, any, Action>>();
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showViewModal, setshowViewModal] = useState(false);
   const [currentAnimationId, setCurrentAnimationId] = useState("");
-  const animation = useSelector(selector);
+  const animation = useSelector(currentAnimationSelector);
 
   useEffect(() => {
     if (currentAnimationId) {
@@ -28,7 +30,7 @@ const AnimationsContainer = ({ animations }: { animations: Animation[] }) => {
       };
       fetchData();
     }
-  }, [currentAnimationId]);
+  }, [currentAnimationId, dispatch]);
 
   return (
     <div className="bg-gray-200 h-dvh">

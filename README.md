@@ -53,3 +53,21 @@ This application uses [Tailwind CSS](https://tailwindcss.com/) for styling.
 ## Persistent Storage
 
 See the `flames-node` documentation for more details.
+
+## Application Layout and Function
+
+At high level, the screen layout is divided into the various React components as shown below:
+
+![The Screen Layout Hierarchy](./images/layout.png)
+
+`Create New Animation` and `View Animation Metadata`, these two operations are supported through modal popup.
+
+1. While creating a new animation, you need to select the `.json` file and enter all the metadata of the animation. Note, the dimension is in `[WIDTH]x[HEIGHT]` format.
+2. To view the animation metadata, you need to click on `info` icon on individual animation item.
+3. The animation definition can be downloaded in `.json` format only.
+
+Future Scope:
+
+1. Pagination
+2. Better Error handling
+3. `.lottie` file support for upload and download.

@@ -1,5 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
 import { IoSearch } from "react-icons/io5";
 import { useState } from "react";
 import InputSearch from "../shapes/input-search";
@@ -8,6 +6,14 @@ import {
   searchAnimations,
 } from "../common/redux/reducers/animations-slice";
 import { useDispatch } from "react-redux";
+import {
+  Action,
+  Dispatch,
+  ThunkDispatch,
+  UnknownAction,
+} from "@reduxjs/toolkit";
+import { AppDispatch } from "../types/types";
+import AnimationsState from "../shapes/animations-state";
 
 const handleFieldChange = (
   e: React.ChangeEvent<HTMLInputElement>,
@@ -22,7 +28,7 @@ const handleFieldChange = (
 const handleFormSubmit = async (
   event: React.FormEvent<HTMLFormElement>,
   formData: InputSearch,
-  dispatch: Dispatch<UnknownAction>
+  dispatch: ThunkDispatch<AnimationsState, any, Action>
 ) => {
   event.preventDefault();
   if (formData?.search.length) {
@@ -33,13 +39,17 @@ const handleFormSubmit = async (
 };
 
 const handleKeyDown = async (
-  event: any,
+  event: React.KeyboardEvent,
   formData: InputSearch,
   dispatch: Dispatch<UnknownAction>
 ) => {
   const key = event.key;
   if (key === "Enter") {
-    await handleFormSubmit(event, formData, dispatch);
+    await handleFormSubmit(
+      event as unknown as React.FormEvent<HTMLFormElement>,
+      formData,
+      dispatch
+    );
   }
 };
 
@@ -48,7 +58,7 @@ const ActionBar = ({
 }: {
   setShowUploadModal: CallableFunction;
 }) => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const [formData, setFormData] = useState({} as InputSearch);
 
   return (

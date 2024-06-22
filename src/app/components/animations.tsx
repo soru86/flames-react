@@ -1,5 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
 import { useDispatch } from "react-redux";
 import AnimationsContainer from "./animations-container";
 import { useCallback, useEffect } from "react";
@@ -14,25 +12,27 @@ import {
   setSyncStatus,
   syncOfflineAnimations,
 } from "../common/redux/reducers/resilient-sync-slice";
+import { RootState } from "../types/types";
+import { ThunkDispatch } from "redux-thunk";
+import AnimationsState from "../shapes/animations-state";
+import { Action } from "@reduxjs/toolkit";
 
-const animationsSelector = (state) => {
+const animationsSelector = (state: RootState) => {
   return state?.animations?.animations;
 };
 
-const errorSelector = (state) => state?.animations?.error;
+const errorSelector = (state: RootState) => state?.animations?.error;
 
-const offlineAnimationsSelector = (state) =>
+const offlineAnimationsSelector = (state: RootState) =>
   state?.offlineAnimations?.offlineAnimations;
 
-const syncStatusSelector = (state) => state?.offlineAnimations?.syncStatus;
+const syncStatusSelector = (state: RootState) =>
+  state?.offlineAnimations?.syncStatus;
 
-const networkStatusSelector = (state) => state?.animations?.networkStatus;
+const networkStatusSelector = (state: RootState) =>
+  state?.animations?.networkStatus;
 
-const handleConnection = async (
-  syncStatus: string,
-  unsyncedAnimations: Array<Animation>,
-  dispatch: CallableFunction
-) => {
+const handleConnection = async (dispatch: CallableFunction) => {
   if (navigator.onLine) {
     const online = await isConnectionAlive();
     if (online) {
@@ -54,7 +54,7 @@ const Animations = () => {
   const unsyncedAnimations = useSelector(offlineAnimationsSelector);
   const syncStatus = useSelector(syncStatusSelector);
   const nwStatus = useSelector(networkStatusSelector);
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<ThunkDispatch<AnimationsState, any, Action>>();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -78,7 +78,7 @@ const Animations = () => {
           syncOfflineAnimations(unsyncedAnimations)
         );
 
-        if (!response?.error) {
+        if (response?.meta?.requestStatus === "fulfilled") {
           dispatch(setSyncStatus("completed"));
           toast("Data sync completed!", {
             type: "success",
@@ -90,7 +90,7 @@ const Animations = () => {
   }, [nwStatus, unsyncedAnimations, syncStatus, dispatch]);
 
   useEffect(() => {
-    if (syncStatus === "completed" || !error) {
+    if (syncStatus === "completed" && !error) {
       const fetchUpdatedData = async () => {
         await dispatch(fetchAnimations());
       };
@@ -99,8 +99,8 @@ const Animations = () => {
   }, [syncStatus, error, dispatch]);
 
   const eventCallback = useCallback(() => {
-    handleConnection(syncStatus, unsyncedAnimations, dispatch);
-  }, []);
+    handleConnection(dispatch);
+  }, [dispatch]);
 
   useEffect(() => {
     window.addEventListener("online", eventCallback);

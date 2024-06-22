@@ -1,4 +1,5 @@
 import { IoClose } from "react-icons/io5";
+import Animation from "../shapes/animation";
 
 const AnimationDetailedInfoModal = ({
   showViewModal,
@@ -7,7 +8,7 @@ const AnimationDetailedInfoModal = ({
 }: {
   showViewModal: boolean;
   setshowViewModal: CallableFunction;
-  anim: any;
+  anim: Animation;
 }) => {
   const styleClasses: string = showViewModal
     ? "fixed z-50 inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full px-4"

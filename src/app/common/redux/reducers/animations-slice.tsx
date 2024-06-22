@@ -1,7 +1,11 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
-
+import {
+  PayloadAction,
+  Slice,
+  createAsyncThunk,
+  createSlice,
+} from "@reduxjs/toolkit";
 import Animation from "../../../shapes/animation";
+import AnimationsState from "../../../shapes/animations-state";
 import InputAnimation from "../../../shapes/input-animation";
 import InputSearch from "../../../shapes/input-search";
 import {
@@ -10,116 +14,117 @@ import {
   createAnimation,
   queryAnimationsByTitle,
 } from "../../apollo/gql.apis";
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { AsyncThunkConfig } from "@reduxjs/toolkit/dist/createAsyncThunk";
+import { animationsInitialState } from "../initial-states/animations-initial-state";
 
-interface AnimationsState {
-  status: string;
-  error: any;
-  animations: Array<Animation>;
-  currentAnimation: Animation;
-  networkStatus: string;
-}
-
-const initialState: AnimationsState = {
-  status: "idle",
-  error: null,
-  animations: [],
-  currentAnimation: {},
-  networkStatus: "online",
-};
+const createAppAsyncThunk = createAsyncThunk.withTypes<AsyncThunkConfig>();
 
 export const fetchAnimations = createAsyncThunk(
   "graphql/animations",
-  async (thunkAPI) => {
+  async () => {
     const response = await queryAllAnimations();
     return response;
   }
 );
 
-export const fetchAnimationById = createAsyncThunk(
+export const fetchAnimationById = createAppAsyncThunk(
   "graphql/animations/id",
-  async (animationId: string, thunkAPI) => {
+  async (animationId: string) => {
     const response = await queryAnimationById(animationId);
     return response;
   }
 );
 
-export const addAnimation = createAsyncThunk(
+export const addAnimation = createAppAsyncThunk(
   "graphql/animations/new",
-  async (animation: InputAnimation, thunkAPI) => {
+  async (animation: InputAnimation) => {
     let response = await createAnimation(animation);
     return response.data.addAnimation as Animation;
   }
 );
 
-export const searchAnimations = createAsyncThunk(
+export const searchAnimations = createAppAsyncThunk(
   "graphql/animations/search",
-  async (searchData: InputSearch, thunkAPI) => {
+  async (searchData: InputSearch) => {
     let response = await queryAnimationsByTitle(searchData.search);
     return response;
   }
 );
 
-const animationsSlice = createSlice({
-  name: "animations",
-  initialState,
+const animationsSlice: Slice = createSlice({
+  name: "animations" as string,
+  initialState: animationsInitialState,
   reducers: {
-    getAllAnimations: (state) => state?.animations,
-    getCurrentAnimation: (state) => state?.currentAnimation,
-    setNetworkStatus: (state, action) => {
+    setNetworkStatus: (
+      state: AnimationsState,
+      action: PayloadAction<string>
+    ) => {
       state.networkStatus = action.payload;
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchAnimations.pending, (state) => {
+      .addCase(fetchAnimations.pending, (state: AnimationsState) => {
         state.status = "loading";
       })
-      .addCase(fetchAnimations.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        state.animations = action.payload;
-      })
-      .addCase(fetchAnimations.rejected, (state, action) => {
+      .addCase(
+        fetchAnimations.fulfilled,
+        (state: AnimationsState, action: PayloadAction<Array<Animation>>) => {
+          state.status = "succeeded";
+          state.animations = action.payload;
+        }
+      )
+      .addCase(fetchAnimations.rejected, (state: AnimationsState, action) => {
         state.status = "failed";
         state.error = action.error.message;
       })
-      .addCase(fetchAnimationById.pending, (state) => {
+      .addCase(fetchAnimationById.pending, (state: AnimationsState) => {
         state.status = "loading";
       })
-      .addCase(fetchAnimationById.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        state.currentAnimation = action.payload;
+      .addCase(
+        fetchAnimationById.fulfilled,
+        (state: AnimationsState, action: PayloadAction<Animation>) => {
+          state.status = "succeeded";
+          state.currentAnimation = action.payload;
+        }
+      )
+      .addCase(
+        fetchAnimationById.rejected,
+        (state: AnimationsState, action) => {
+          state.status = "failed";
+          state.error = action.error.message;
+        }
+      )
+      .addCase(addAnimation.pending, (state: AnimationsState) => {
+        state.status = "loading";
       })
-      .addCase(fetchAnimationById.rejected, (state, action) => {
+      .addCase(
+        addAnimation.fulfilled,
+        (state: AnimationsState, action: PayloadAction<Animation>) => {
+          state.status = "succeeded";
+          state.animations.unshift(action.payload);
+        }
+      )
+      .addCase(addAnimation.rejected, (state: AnimationsState, action) => {
         state.status = "failed";
         state.error = action.error.message;
       })
-      .addCase(addAnimation.pending, (state) => {
+      .addCase(searchAnimations.pending, (state: AnimationsState) => {
         state.status = "loading";
       })
-      .addCase(addAnimation.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        state.animations.push(action.payload);
-      })
-      .addCase(addAnimation.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.error.message;
-      })
-      .addCase(searchAnimations.pending, (state) => {
-        state.status = "loading";
-      })
-      .addCase(searchAnimations.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        state.animations = action.payload;
-      })
-      .addCase(searchAnimations.rejected, (state, action) => {
+      .addCase(
+        searchAnimations.fulfilled,
+        (state: AnimationsState, action: PayloadAction<Array<Animation>>) => {
+          state.status = "succeeded";
+          state.animations = action.payload;
+        }
+      )
+      .addCase(searchAnimations.rejected, (state: AnimationsState, action) => {
         state.status = "failed";
         state.error = action.error.message;
       });
   },
 });
 
-export type AppDispatch = typeof store.dispatch;
-export const { getAllAnimations, getCurrentAnimation, setNetworkStatus } =
-  animationsSlice.actions;
+export const { setNetworkStatus } = animationsSlice.actions;
 export default animationsSlice.reducer;
