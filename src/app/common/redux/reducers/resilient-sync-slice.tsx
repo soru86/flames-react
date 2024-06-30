@@ -38,7 +38,6 @@ const offlineAnimationsSlice: Slice = createSlice({
       .addCase(
         syncOfflineAnimations.fulfilled,
         (state: OfflineAnimationsState, action) => {
-          state.syncStatus = "completed";
           if (state.syncStatus === "completed") {
             state["offlineAnimations"] = [];
           }

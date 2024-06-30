@@ -120,7 +120,9 @@ const Animations = () => {
 
   return (
     <div>
-      <AnimationsContainer animations={animations} />
+      <AnimationsContainer
+        animations={[...unsyncedAnimations, ...animations]}
+      />
       <ToastContainer
         position="bottom-right"
         autoClose={5000}

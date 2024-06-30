@@ -7,7 +7,7 @@ import { ApolloProvider } from "@apollo/client";
 import { Provider } from "react-redux";
 import { store } from "./app/common/redux/store/store";
 import "react-toastify/dist/ReactToastify.css";
-import * as swRegistration from "./app/utils/service-worker-utils";
+import * as swRegistration from "./service-worker-utils";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
